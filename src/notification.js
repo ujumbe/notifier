@@ -1,13 +1,21 @@
-import { IncomingWebhook } from "@slack/webhook";
+import { IncomingWebhook } from '@slack/webhook';
+import 'dotenv/config';
 
-const webhook = new IncomingWebhook('https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX');
+const webhook = new IncomingWebhook(process?.env?.SLACK_URL);
 
 const sendNotification = async (invoice) => {
-    const {number, currency, amount, dueDate} = invoice;
+  try {
+    const { number, currency, amount, dueDate } = invoice;
+    if (!number || !currency || !amount || !dueDate) {
+      logger.error(`${invoice} missing some data`);
+      return;
+    }
     await webhook.send({
-        text: `Hi There!\n The invoice ${number} of ${currency} ${amount} is due on ${dueDate}`,
+      text: `Hi There!\n The invoice ${number} of ${currency} ${amount} is due on ${dueDate}`
     });
-}
-
+  } catch (error) {
+    logger.error({ error });
+  }
+};
 
 export default sendNotification;

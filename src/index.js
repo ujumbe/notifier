@@ -1,5 +1,7 @@
 import { MongoClient } from 'mongodb';
 import 'dotenv/config';
+import logger from './utils.js';
+import sendNotification from './notification.js';
 
 async function getDB() {
   try {
@@ -11,14 +13,16 @@ async function getDB() {
 
     await client.connect();
     return client.db(process?.env?.MONGODB_NAME);
-  } catch (ex) {
-    console.error({ ex });
+  } catch (error) {
+    logger.error(`ERROR: getDB()... ${error}`);
+    return;
   }
 }
 
-console.log('Connecting to DB...');
+logger.info('Connecting to DB...');
 const db = await getDB().catch((error) => {
-  console.error(error);
+  logger.error(`ERROR: Connecting to DB... ${error}`);
+  return;
 });
 
 export const start = async () => {
@@ -40,22 +44,20 @@ export const start = async () => {
         .toArray();
 
       if (!Array.isArray(invoices)) {
-        console.error('No invoices found');
+        logger.error('No invoices found');
         return;
       }
 
-      const tasks = invoices.map(
-        (invoice) =>
-          new Promise((resolve, reject) => {
-            sendNotification(invoice).then(resolve).catch(reject);
-          })
-      );
+      const tasks = invoices.map((invoice) => sendNotification(invoice));
 
       await Promise.allSettled(tasks);
     } catch (error) {
-      console.error(error);
+      logger.error(`ERROR: runNotificationCycle()... ${error}`);
+      return;
     }
   };
-  console.log('Starting notification cycle...');
-  setInterval(runNotificationCycle, process?.env?.CYCLE_INTERVAL);
+  if (db) {
+    console.log('Starting notification cycle...');
+    setInterval(runNotificationCycle, process?.env?.CYCLE_INTERVAL);
+  }
 };
