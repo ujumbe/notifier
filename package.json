@@ -6,12 +6,14 @@
   "type": "module",
   "scripts": {
     "start": "node app.js",
+    "dev": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
     "@slack/webhook": "^7.0.0",
+    "dotenv": "^16.3.1",
     "mongodb": "^6.2.0",
     "mongoose": "^7.6.3"
   }
