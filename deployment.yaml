@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notifier-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: notifier-app
+  template:
+    metadata:
+      labels:
+        app: notifier-app
+    spec:
+      containers:
+        - name: notifier-app
+          image: ujumbe_notifier
+          ports:
+            - containerPort: 3000

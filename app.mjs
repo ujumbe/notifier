@@ -1,4 +1,4 @@
-import { start } from './src/index';
+import { start } from "./src/index.mjs";
 
 Promise
   .resolve()
